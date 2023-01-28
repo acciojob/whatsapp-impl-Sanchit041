@@ -108,10 +108,74 @@ public class WhatsappRepository {
         throw new Exception("Group does not exist");
     }
 
-//    public int removeUser(User user) {
-//      return 1;
-//    }
-//    public String findMessage(Date start, Date end, int k) {
-//        return "";
-//    }
+    public int removeUser(User user) throws Exception {
+       Boolean userFound = false;
+        Group userGroup = null;
+        for(Group group: groupUserMap.keySet()){
+            List<User> participants = groupUserMap.get(group);
+            for(User participant: participants){
+                if(participant.equals(user)){
+                    if(adminMap.get(group).equals(user)){
+                        throw new Exception("Cannot remove admin");
+                    }
+                    userGroup = group;
+                    userFound = true;
+                    break;
+                }
+            }
+            if(userFound){
+                break;
+            }
+        }
+        if(userFound){
+            List<User> users = groupUserMap.get(userGroup);
+            List<User> updatedUsers = new ArrayList<>();
+            for(User participant: users){
+                if(participant.equals(user))
+                    continue;
+                updatedUsers.add(participant);
+            }
+            groupUserMap.put(userGroup, updatedUsers);
+
+            List<Message> messages = groupMessageMap.get(userGroup);
+            List<Message> updatedMessages = new ArrayList<>();
+            for(Message message: messages){
+                if(senderMap.get(message).equals(user))
+                    continue;
+                updatedMessages.add(message);
+            }
+            groupMessageMap.put(userGroup, updatedMessages);
+
+            HashMap<Message, User> updatedSenderMap = new HashMap<>();
+            for(Message message: senderMap.keySet()){
+                if(senderMap.get(message).equals(user))
+                    continue;
+                updatedSenderMap.put(message, senderMap.get(message));
+            }
+            senderMap = updatedSenderMap;
+            return updatedUsers.size()+updatedMessages.size()+updatedSenderMap.size();
+        }
+        throw new Exception("User not found");
+    }
+    public String findMessage(Date start, Date end, int k)throws Exception{
+        List<Message> messages = new ArrayList<>();
+        for(Group group: groupMessageMap.keySet()){
+            messages.addAll(groupMessageMap.get(group));
+        }
+        List<Message> filteredMessages = new ArrayList<>();
+        for(Message message: messages){
+            if(message.getTimestamp().after(start) && message.getTimestamp().before(end)){
+                filteredMessages.add(message);
+            }
+        }
+        if(filteredMessages.size() < k){
+            throw new Exception("K is greater than the number of messages");
+        }
+        Collections.sort(filteredMessages, new Comparator<Message>(){
+            public int compare(Message m1, Message m2){
+                return m2.getTimestamp().compareTo(m1.getTimestamp());
+            }
+        });
+        return filteredMessages.get(k-1).getContent();
+    }
 }
