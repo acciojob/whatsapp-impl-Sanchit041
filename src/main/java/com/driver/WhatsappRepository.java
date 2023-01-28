@@ -71,58 +71,46 @@ public class WhatsappRepository {
    }
    public int sendMessage(Message message,User user,Group group) throws Exception
    {
-       if(!groupUserMap.containsKey(group))
-       {
-           throw new Exception("Group does not exist");
-       }
-       boolean flag = false;
-       for( Group li : groupUserMap.keySet())
-       {
-           List<User> get = groupUserMap.get(li);
-           for(User u : get)
-           {
-               if(Objects.equals(u,user))
-               {
-                   flag = true;
-               }
-           }
-       }
-       if(flag == false)
-       {
-           throw new Exception("User is not part of group");
-       }
-       senderMap.put(message,user);
-       groupMessageMap.put(group,groupMessageMap.getOrDefault(group,new ArrayList<>()));
-       groupMessageMap.get(group).add(message);
-       return groupMessageMap.get(group).size();
+        if(adminMap.containsKey(group)){
+            List<User> users = groupUserMap.get(group);
+            Boolean userFound = false;
+            for(User use: users){
+                if(use.equals(user)){
+                    userFound = true;
+                    break;
+                }
+            }
+            if(userFound){
+                senderMap.put(message, user);
+                List<Message> messages = groupMessageMap.get(group);
+                messages.add(message);
+                groupMessageMap.put(group, messages);
+                return messages.size();
+            }
+            throw new Exception("You are not allowed to send message");
+        }
+        throw new Exception("Group does not exist");
    }
    public String changeAdmin(User approver, User user, Group group)throws Exception {
-        if(groupUserMap.containsKey(group))
-        {
-             throw new Exception("");
+       if(adminMap.containsKey(group)){
+            if(adminMap.get(group).equals(approver)){
+                List<User> participants = groupUserMap.get(group);
+                Boolean userFound = false;
+                for(User participant: participants){
+                    if(participant.equals(user)){
+                        userFound = true;
+                        break;
+                    }
+                }
+                if(userFound){
+                    adminMap.put(group, user);
+                    return "SUCCESS";
+                }
+                throw new Exception("User is not a participant");
+            }
+            throw new Exception("Approver does not have rights");
         }
-       if(!adminMap.get(group).equals(approver))
-       {
-           throw new Exception("");
-       }
-         boolean flag = false;
-       for( Group li : groupUserMap.keySet())
-       {
-           List<User> get = groupUserMap.get(li);
-           for(User u : get)
-           {
-               if(Objects.equals(u,user))
-               {
-                   flag = true;
-               }
-           }
-       }
-       if(flag == false)
-       {
-           throw new Exception("User is not part of group");
-       }
-       adminMap.put(group,user);
-        return "SUCCESS";
+        throw new Exception("Group does not exist");
     }
 
 //    public int removeUser(User user) {
