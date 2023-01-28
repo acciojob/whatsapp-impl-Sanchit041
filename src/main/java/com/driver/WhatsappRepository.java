@@ -31,16 +31,14 @@ public class WhatsappRepository {
         this.customGroupCount = 0;
         this.messageId = 0;
     }
-    public String createUser(String name,String Phone_no)
+    public String createUser(String name,String Phone_no) throws Exception
     {
-        if(userMobile.contains(Phone_no))
-        {
-            return "Already Present";
+         if(userMobile.contains(Phone_no)){
+            throw new Exception("User already exists");
         }
-        User u = new User(name,Phone_no);
-//        u.add(u);
         userMobile.add(Phone_no);
-        return "Success";
+        User user = new User(name, Phone_no);
+        return "SUCCESS";
     }
    public Group  createGroup(List<User> user)
    {

@@ -1,11 +1,12 @@
 package com.driver;
 
+import java.beans.ExceptionListener;
 import java.util.Date;
 import java.util.List;
 
 public class WhatsappService {
     WhatsappRepository whatsappRepository = new WhatsappRepository();
-    public String createUser(String name, String mobile) {
+    public String createUser(String name, String mobile) throws Exception {
     return whatsappRepository.createUser(name,mobile);
     }
 
