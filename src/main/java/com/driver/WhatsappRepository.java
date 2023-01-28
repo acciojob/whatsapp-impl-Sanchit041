@@ -44,24 +44,19 @@ public class WhatsappRepository {
     }
    public Group  createGroup(List<User> user)
    {
-       if(user.size()<=1){
-
-       }
-       Group g ;
-       if(user.size()==2)
-       {
-            g= new Group(user.get(1).getName(),customGroupCount+1);
-           customGroupCount +=1;
-           groupUserMap.put(g,user);
-       }
-       else
-       {
-             g = new Group("Group"+(customGroupCount+1),customGroupCount+1);
-            customGroupCount++;
-            adminMap.put(g,user.get(1));
-            groupUserMap.put(g,user);
-       }
-       return g;
+       if(user.size()==2){
+            Group group = new Group(user.get(1).getName(), 2);
+            adminMap.put(group, user.get(0));
+            groupUserMap.put(group, user);
+            groupMessageMap.put(group, new ArrayList<Message>());
+            return group;
+        }
+        this.customGroupCount += 1;
+        Group group = new Group(new String("Group "+this.customGroupCount), user.size());
+        adminMap.put(group, user.get(0));
+        groupUserMap.put(group, user);
+        groupMessageMap.put(group, new ArrayList<Message>());
+        return group;
    }
    public int createMessage(String content)
    {
